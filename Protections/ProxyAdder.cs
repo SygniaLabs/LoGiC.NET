@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 using LoGiC.NET.Utils;
@@ -31,10 +32,11 @@ namespace LoGiC.NET.Protections
         {
             for (int o = 0; o < Intensity; o++)
                 foreach (TypeDef t in Program.Module.Types)
-                    for (int i = 0; i < t.Methods.Count; i++)
+                {
+                    int mCount = t.Methods.Count;
+                    for (int i = 0; i < mCount; i++)
                     {
                         MethodDef m = t.Methods[i];
-
                         if (!m.HasBody)
                             continue;
 
@@ -76,7 +78,7 @@ namespace LoGiC.NET.Protections
                                 ++Amount;
                             }
                     }
-
+                }
             Console.WriteLine($"  Added {Amount} proxy calls.");
         }
     }

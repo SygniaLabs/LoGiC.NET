@@ -23,8 +23,9 @@ namespace LoGiC.NET.Protections
         {
             using (MD5 hash = MD5.Create())
             {
+                //We get the md5 as byte, of the target
                 byte[] bytes = hash.ComputeHash(File.ReadAllBytes(filePath));
-
+                //Append md5 in the end
                 using (FileStream fs = new FileStream(filePath, FileMode.Append))
                     fs.Write(bytes, 0, bytes.Length);
             }
@@ -32,12 +33,15 @@ namespace LoGiC.NET.Protections
 
         public override void Execute()
         {
+            //We declare our Module, here we want to load the TamperClass class
             ModuleDefMD typeModule = ModuleDefMD.Load(typeof(TamperClass).Module);
+            //We declare TamperClass as a TypeDef using it's Metadata token (needed)
             TypeDef typeDef = typeModule.ResolveTypeDef(MDToken.ToRID(typeof(TamperClass).MetadataToken));
+            //We use confuserEX InjectHelper class to inject TamperClass class into our target, under <Module>
             IEnumerable<IDnlibDef> members = InjectHelper.Inject(typeDef, Program.Module.GlobalType, Program.Module);
             MethodDef init = (MethodDef)members.Single(method => method.Name == "NoTampering");
             init.GetRenamed();
-
+            //We find or create the .cctor method in <Module>, aka GlobalType, if it doesn't exist yet
             Program.Module.GlobalType.FindOrCreateStaticConstructor().Body.Instructions.Insert(0,
                 Instruction.Create(OpCodes.Call, init));
 

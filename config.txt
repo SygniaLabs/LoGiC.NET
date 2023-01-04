@@ -1,1 +1,0 @@
-ProxyCallsIntensity: 4
